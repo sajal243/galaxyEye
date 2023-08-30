@@ -1,0 +1,111 @@
+
+<!DOCTYPE html>
+<html>
+   <head>
+      <title>Leaflet sample</title>
+      <link rel="stylesheet" href="styles.css">
+      <link rel = "stylesheet" href = "http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.css"/>
+      <script src = "http://cdn.leafletjs.com/leaflet-0.7.3/leaflet.js"></script>
+   </head>
+
+   <body>
+        <div id="controls">
+            <!-- UI elements for drawing AOI and displaying tiles -->
+            <button id="drawButton">Draw AOI</button>
+            <!-- Other UI elements here -->
+        </div>
+        <div id = "map" style = "width: 900px; height: 580px"></div>
+        <script>
+            // Creating map options
+    
+            var mapOptions = {
+                //center: [17.385044, 78.486671],
+                center: [14.5204, 75.7224],
+                zoom: 10
+                
+            }
+            
+            // Creating a map object
+            var map = new L.map('map', mapOptions);
+            
+            // Creating a Layer object
+            var layer = new L.TileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png');
+            
+            // Adding layer to the map
+            map.addLayer(layer);
+
+            // fetch the data from the json and send the coordinates to startDrawing
+
+
+            /*const polygonCoordinates = [
+                [12.9716, 77.5946],
+                [12.9716, 77.6101],
+                [12.9882, 77.6101],
+                [12.9882, 77.5946]
+            ];*/
+
+            // Initialize AOI drawing
+            const drawButton = document.getElementById('drawButton');
+            drawButton.addEventListener('click', startDrawing);
+
+            function startDrawing() {
+                // Use Leaflet.Draw library to draw AOI
+             // When AOI is drawn, fetch intersecting tiles and display them
+                console.log("Start Drawing....");
+                Func();
+                
+
+            } 
+
+            function performAction(data){
+            
+                console.log("Inside perform action");
+                var polyCord = [];
+                var cnt = 0;
+                data.features.forEach((feature, idx) => {
+                    if (feature.geometry && feature.geometry.coordinates) {
+                        cnt++;
+                        if(idx > 2){
+                            return;
+                        }
+
+                        console.log(cnt);
+                        const coordinates = feature.geometry.coordinates[0];
+                        
+                        const polygon = L.polygon(coordinates, {
+                            color: 'black',
+                            //fillOpacity: 0.1,
+                            fill: "#00f"
+                        }).addTo(map);
+                
+                        // Fit the map to the bounds of the polygon
+                        map.fitBounds(polygon.getBounds());
+
+                        
+                        
+                    }
+                });   
+
+                console.log(cnt);
+                
+            }
+
+
+            function Func() {
+                fetch("https://file.notion.so/f/s/1a1e461b-4293-428d-88da-5089a8cc8cf3/karnataka.geojson?id=79516c94-b1a0-48f7-ad9c-e45a34b740fa&table=block&spaceId=b59f6a36-2cae-40b9-a28b-2340823a5029&expirationTimestamp=1693497600000&signature=R-5vFUNp2Hc3weowtAUqOhv73QtX4vZwkmdtK-w7dt4&downloadName=karnataka.geojson")
+                    .then((res) => {
+                    return res.json();
+                })
+                .then(data => performAction(data));
+
+                //performAction(data);
+
+                
+            }
+
+            
+
+        </script>
+   </body>
+   
+</html>
